@@ -145,6 +145,9 @@ php index.php processar run
 | `SUPABASE_ANON_KEY` | Sim | Chave anon (header `apikey` no token) |
 | `INPUT_CSV` | Não | Caminho do CSV de entrada |
 | `OUTPUT_CSV` | Não | Caminho do `resultado.csv` |
+| `IBGE_DEBUG_JSON` | Não | Se definido (ex.: `1`), o fluxo `processar run` imprime o JSON do payload antes do envio à API |
+
+Após o envio, o fluxo **`processar run`** exige que a resposta JSON contenha o campo **`score`**; caso contrário o processo encerra com erro.
 
 ---
 
