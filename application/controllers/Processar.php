@@ -75,13 +75,28 @@ class Processar extends CI_Controller {
 		}
 
 		$payload = array(
-			'total_municipios' => $statsFinal['total_municipios'],
-			'total_ok' => $statsFinal['total_ok'],
-			'total_nao_encontrado' => $statsFinal['total_nao_encontrado'],
-			'total_erro_api' => $statsFinal['total_erro_api'],
-			'pop_total_ok' => $statsFinal['pop_total_ok'],
+			'total_municipios' => (int) $statsFinal['total_municipios'],
+			'total_ok' => (int) $statsFinal['total_ok'],
+			'total_nao_encontrado' => (int) $statsFinal['total_nao_encontrado'],
+			'total_erro_api' => (int) $statsFinal['total_erro_api'],
+			'pop_total_ok' => (int) $statsFinal['pop_total_ok'],
 			'medias_por_regiao' => $statsFinal['medias_por_regiao'],
 		);
+
+		if (getenv('IBGE_DEBUG_JSON'))
+		{
+			$this->_out('');
+			$this->_out('--- JSON enviado à API (debug) ---');
+			$debug = json_encode(array('stats' => $payload), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+			if (is_cli())
+			{
+				echo $debug . PHP_EOL;
+			}
+			else
+			{
+				echo '<pre>' . htmlspecialchars($debug, ENT_QUOTES, 'UTF-8') . '</pre>';
+			}
+		}
 
 		$this->_out('Enviando estatísticas à API...');
 		try
@@ -93,8 +108,21 @@ class Processar extends CI_Controller {
 			$this->_out_err('Falha no envio: ' . $e->getMessage());
 		}
 
+		if ( ! is_array($resposta) || ! array_key_exists('score', $resposta))
+		{
+			$this->_out_err('Resposta da API inválida ou sem campo score.');
+		}
+
 		$this->_out('');
 		$this->_out('--- Resposta da API ---');
+		if (isset($resposta['score']))
+		{
+			$this->_out('score: ' . $resposta['score']);
+		}
+		if (isset($resposta['feedback']))
+		{
+			$this->_out('feedback: ' . (is_string($resposta['feedback']) ? $resposta['feedback'] : json_encode($resposta['feedback'])));
+		}
 		if (is_cli())
 		{
 			print_r($resposta);
