@@ -35,6 +35,11 @@ class IbgeService {
 			file_put_contents($this->cache_file, $json);
 		}
 
+		if ($json === FALSE || $json === '')
+		{
+			throw new RuntimeException('Resposta IBGE vazia.');
+		}
+
 		$data = json_decode($json, TRUE);
 		if ( ! is_array($data))
 		{
@@ -45,13 +50,21 @@ class IbgeService {
 	}
 
 	/**
-	 * Mapa indexado por nome normalizado; vários municípios com mesmo nome normalizado viram lista.
+	 * Mapa indexado por nome normalizado; em falha de dados retorna array com flag de erro.
 	 *
-	 * @return array<string, array<int, array{nome: string, uf: string, regiao: string, id: mixed}>>
+	 * @return array<string, array<int, array{nome: string, uf: string, regiao: string, id: mixed}>|bool>
 	 */
 	public function getMunicipiosMap()
 	{
-		$data = $this->getMunicipios();
+		try
+		{
+			$data = $this->getMunicipios();
+		}
+		catch (Throwable $e)
+		{
+			return array('erro' => TRUE);
+		}
+
 		$map = array();
 
 		foreach ($data as $item)

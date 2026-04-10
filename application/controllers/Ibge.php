@@ -15,6 +15,13 @@ class Ibge extends CI_Controller {
 
 		$this->output->set_content_type('text/html', 'UTF-8');
 		echo '<pre>';
-		print_r(array_slice($map, 0, 5, TRUE));
+		if (isset($map['erro']))
+		{
+			echo "Erro ao carregar dados do IBGE.\n";
+		}
+		else
+		{
+			print_r(array_slice($map, 0, 5, TRUE));
+		}
 	}
 }
