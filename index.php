@@ -314,6 +314,19 @@ switch (ENVIRONMENT)
 
 /*
  * --------------------------------------------------------------------
+ * Carregar .env (raiz do projeto) antes do bootstrap — credenciais para getenv()
+ * --------------------------------------------------------------------
+ */
+	$_env_file = FCPATH . '.env';
+	if (is_readable($_env_file))
+	{
+		require_once APPPATH . 'config' . DIRECTORY_SEPARATOR . 'load_env.php';
+		nasajon_load_dotenv($_env_file);
+	}
+	unset($_env_file);
+
+/*
+ * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE
  * --------------------------------------------------------------------
  *

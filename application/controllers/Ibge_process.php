@@ -205,33 +205,8 @@ class Ibge_process extends CI_Controller {
 	 */
 	protected function _write_result_csv($path, array $linhas)
 	{
-		$cols = array(
-			'municipio_input',
-			'populacao_input',
-			'municipio_ibge',
-			'uf',
-			'regiao',
-			'id_ibge',
-			'status',
-		);
-
-		$h = fopen($path, 'wb');
-		if ($h === FALSE)
-		{
-			throw new RuntimeException('Não foi possível gravar: ' . $path);
-		}
-
-		fputcsv($h, $cols);
-		foreach ($linhas as $r)
-		{
-			$line = array();
-			foreach ($cols as $c)
-			{
-				$line[] = isset($r[$c]) ? $r[$c] : '';
-			}
-			fputcsv($h, $line);
-		}
-		fclose($h);
+		$this->load->helper('csv');
+		write_clean_csv($linhas, $path);
 	}
 
 	/**

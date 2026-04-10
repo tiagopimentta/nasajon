@@ -62,7 +62,7 @@ class Processar extends CI_Controller {
 
 		$outputPath = $this->config->item('output_csv');
 		$this->_out('Gerando ' . $outputPath);
-		gerar_csv($resultado, $outputPath);
+		write_clean_csv($resultado, $outputPath);
 
 		$this->_out('Autenticando no Supabase...');
 		try

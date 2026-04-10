@@ -24,10 +24,9 @@ class ApiService {
 		$this->CI->load->config('ibge');
 		$url = $this->CI->config->item('ibge_submit_url');
 
-		$payload = json_encode(
-			array('stats' => $stats),
-			JSON_UNESCAPED_UNICODE
-		);
+		$payload = json_encode([
+			'stats' => $stats
+		], JSON_UNESCAPED_UNICODE);
 
 		if ( ! function_exists('curl_init'))
 		{

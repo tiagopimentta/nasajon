@@ -111,14 +111,9 @@ class IbgeService {
 	 */
 	private function normalizar($texto)
 	{
-		$texto = strtolower($texto);
-		$converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texto);
-		if ($converted !== FALSE)
-		{
-			$texto = $converted;
-		}
+		$texto = mb_strtolower($texto, 'UTF-8');
+		$texto = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texto);
 		$texto = preg_replace('/[^a-z ]/', '', $texto);
-
 		return trim($texto);
 	}
 
