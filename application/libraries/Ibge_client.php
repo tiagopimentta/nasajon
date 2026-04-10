@@ -1,9 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- * API de localidades do IBGE.
- */
 class Ibge_client {
 
 	protected $CI;
@@ -14,23 +11,19 @@ class Ibge_client {
 	}
 
 	/**
+	 * Busca e retorna a lista bruta de municípios do IBGE (JSON decodificado).
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function fetch_municipios()
 	{
-		$url = 'https://servicodados.ibge.gov.br/api/v1/localidades/municipios';
-		$json = $this->_http_get($url);
-		$data = json_decode($json, TRUE);
-		if ( ! is_array($data))
-		{
-			throw new RuntimeException('Resposta IBGE inesperada (não é lista)');
-		}
+		$this->CI->load->library('IbgeService');
 
-		return $data;
+		return $this->CI->ibgeservice->getMunicipios();
 	}
 
 	/**
-	 * @param array<string, mixed> $m
+	 * Normaliza um município para um array simples com id, nome, UF e região.
+	 * @param array<string, mixed> $m Município IBGE com estrutura aninhada.
 	 * @return array<string, mixed>
 	 */
 	public function flatten_municipio($m)
@@ -51,42 +44,5 @@ class Ibge_client {
 			'uf' => $sigla,
 			'regiao' => $regiao,
 		);
-	}
-
-	/**
-	 * @param string $url
-	 * @return string
-	 */
-	protected function _http_get($url)
-	{
-		if (function_exists('curl_init'))
-		{
-			$ch = curl_init($url);
-			curl_setopt_array($ch, array(
-				CURLOPT_RETURNTRANSFER => TRUE,
-				CURLOPT_FOLLOWLOCATION => TRUE,
-				CURLOPT_TIMEOUT => 120,
-			));
-			$body = curl_exec($ch);
-			$code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-			curl_close($ch);
-			if ($body === FALSE || $code >= 400)
-			{
-				throw new RuntimeException('HTTP IBGE falhou: ' . $code);
-			}
-
-			return $body;
-		}
-
-		$ctx = stream_context_create(array(
-			'http' => array('timeout' => 120),
-		));
-		$body = @file_get_contents($url, FALSE, $ctx);
-		if ($body === FALSE)
-		{
-			throw new RuntimeException('Falha ao buscar IBGE (file_get_contents)');
-		}
-
-		return $body;
 	}
 }

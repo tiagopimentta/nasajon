@@ -1,16 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- * Pipeline final: CSV + mapa IBGE (cache) → resultado.csv → stats → API.
- *
- * CLI: php index.php processar run
- */
 class Processar extends CI_Controller {
 
 	/**
 	 * Carrega a configuração `ibge` (URLs e variáveis de ambiente).
-	 *
 	 * @return void
 	 */
 	public function __construct()
@@ -22,9 +16,7 @@ class Processar extends CI_Controller {
 	/**
 	 * Executa o pipeline final: mapa IBGE (cache), leitura do CSV, matching, estatísticas,
 	 * gravação de `resultado.csv`, login Supabase e envio do payload à função remota.
-	 *
 	 * Recomendado via CLI: `php index.php processar run`.
-	 *
 	 * @return void
 	 */
 	public function run()
@@ -117,7 +109,6 @@ class Processar extends CI_Controller {
 
 	/**
 	 * Saída padrão: linha em CLI ou texto escapado em HTML.
-	 *
 	 * @param string $msg Texto a exibir.
 	 * @return void
 	 */
@@ -135,7 +126,6 @@ class Processar extends CI_Controller {
 
 	/**
 	 * Mensagem de erro em stderr (CLI) ou HTML; encerra o processo com código 1.
-	 *
 	 * @param string $msg Texto do erro.
 	 * @return void
 	 */

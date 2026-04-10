@@ -1,14 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- * Testes de integração com a API de localidades do IBGE (cache em arquivo + mapa normalizado).
- */
 class Ibge extends CI_Controller {
 
 	/**
 	 * Exibe uma amostra do mapa de municípios (primeiras chaves) para validar cache e formato.
-	 *
 	 * @return void
 	 */
 	public function index()
