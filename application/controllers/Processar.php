@@ -51,6 +51,11 @@ class Processar extends CI_Controller {
 		$this->_out('Lendo CSV: ' . $csvPath);
 		$csv = $this->csvservice->ler($csvPath);
 
+		if (empty($csv) || count($csv) < 10)
+		{
+			die('Erro: CSV inválido ou incompleto.');
+		}
+
 		$this->_out('Processando matching...');
 		list($resultado, $stats) = $this->processadorservice->processar(
 			$csv,

@@ -38,6 +38,16 @@ class CsvService {
 		}
 
 		$header = array_map('trim', array_shift($rows));
+		if (isset($header[0]))
+		{
+			$header[0] = preg_replace('/^\xEF\xBB\xBF/', '', $header[0]);
+		}
+
+		if (count($header) < 2 || $header[0] !== 'municipio' || $header[1] !== 'populacao')
+		{
+			die("Erro: CSV deve conter cabeçalho 'municipio,populacao'");
+		}
+
 		$map = array_flip($header);
 		if ( ! isset($map['municipio'], $map['populacao']))
 		{
@@ -55,6 +65,13 @@ class CsvService {
 				'populacao' => (int) $p,
 			);
 		}
+
+		if (count($data) !== 10)
+		{
+			die("Erro: input.csv deve conter exatamente 10 municípios conforme a prova.");
+		}
+
+		echo 'Total de municípios carregados: ' . count($data) . PHP_EOL;
 
 		return $data;
 	}

@@ -2,7 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Matching de nome de município contra mapa IBGE (exato + similar_text, status explícito).
+ * Matching de nome de município contra mapa IBGE (exato + melhor similar_text).
+ * Fuzzy: abaixo de 60% NAO_ENCONTRADO; 70% ou mais OK; entre 60% e 70% AMBIGUO.
  */
 class MatcherService {
 
@@ -58,7 +59,8 @@ class MatcherService {
 			}
 		}
 
-		$candidatos = array();
+		$melhor = NULL;
+		$melhorScore = 0;
 
 		foreach ($map as $key => $lista)
 		{
@@ -69,34 +71,32 @@ class MatcherService {
 
 			similar_text($nome, (string) $key, $percent);
 
-			if ($percent > 80)
+			if ($percent > $melhorScore)
 			{
-				foreach ($lista as $item)
-				{
-					$candidatos[] = $item;
-				}
+				$melhorScore = $percent;
+				$melhor = isset($lista[0]) ? $lista[0] : NULL;
 			}
 		}
 
-		if (count($candidatos) === 1)
+		if ($melhorScore < 60)
 		{
 			return array(
-				'status' => 'OK',
-				'data' => $candidatos[0],
+				'status' => 'NAO_ENCONTRADO',
+				'data' => NULL,
 			);
 		}
 
-		if (count($candidatos) > 1)
+		if ($melhorScore >= 70)
 		{
 			return array(
-				'status' => 'AMBIGUO',
-				'data' => $candidatos,
+				'status' => 'OK',
+				'data' => $melhor,
 			);
 		}
 
 		return array(
-			'status' => 'NAO_ENCONTRADO',
-			'data' => NULL,
+			'status' => 'AMBIGUO',
+			'data' => $melhor,
 		);
 	}
 }
