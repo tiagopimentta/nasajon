@@ -2,7 +2,30 @@
 
 Aplicação PHP que cruza um CSV de municípios com a base do IBGE (cache local), gera `resultado.csv`, calcula estatísticas e envia o resumo a uma função Supabase.
 
-**Toda a documentação de uso está neste ficheiro** (instalação, execução e testes).
+## Execução rápida
+
+```bash
+php index.php processar run
+```
+
+Gera:
+
+- `resultado.csv`
+- estatísticas
+- envia para API (retorna `score`)
+
+**Toda a documentação de uso está neste arquivo** (instalação, execução e testes).
+
+---
+
+## Fluxo do sistema
+
+1. Lê CSV
+2. Consulta IBGE (com cache)
+3. Faz matching de municípios
+4. Gera `resultado.csv`
+5. Calcula estatísticas
+6. Envia para API
 
 ---
 
@@ -32,7 +55,7 @@ cp env.example .env
 Edite `.env` e preencha pelo menos `SUPABASE_EMAIL`, `SUPABASE_PASSWORD` e `SUPABASE_ANON_KEY` quando for usar `ibge_process run` ou `processar run`.  
 `INPUT_CSV` e `OUTPUT_CSV` são opcionais (há valores padrão no `application/config/ibge.php`).
 
-O ficheiro `.env` na raiz é carregado pelo `index.php` (via `application/config/load_env.php`) para que `getenv()` funcione nos fluxos CLI e HTTP.
+O arquivo `.env` na raiz é carregado pelo `index.php` (via `application/config/load_env.php`) para que `getenv()` funcione nos fluxos CLI e HTTP.
 
 ---
 
@@ -56,7 +79,7 @@ php index.php ibge_process run
 php index.php processar run
 ```
 
-**Saída:** mensagens no terminal; ficheiro **`resultado.csv`** (por defeito na raiz do projeto, salvo se `OUTPUT_CSV` estiver definido).
+**Saída:** mensagens no terminal; arquivo **`resultado.csv`** (por padrão na raiz do projeto, salvo se `OUTPUT_CSV` estiver definido).
 
 ### Servidor HTTP local (navegador ou curl)
 
@@ -166,7 +189,7 @@ Após o envio, o fluxo **`processar run`** espera que a resposta JSON contenha o
 | `OUTPUT_CSV` | Não | Caminho do `resultado.csv` |
 | `IBGE_DEBUG_JSON` | Não | Se definido (ex.: `1`), o fluxo `processar run` imprime o JSON do payload antes do envio à API |
 
-Modelo para copiar: ficheiro **`env.example`** na raiz.
+Modelo para copiar: arquivo **`env.example`** na raiz.
 
 ---
 
@@ -183,6 +206,27 @@ São Paulo,12300000
 
 ---
 
+## Exemplo de resultado.csv
+
+```csv
+municipio_input,populacao_input,municipio_ibge,uf,regiao,id_ibge,status
+Curitba,1900000,Curitiba,PR,Sul,4106902,OK
+Santoo Andre,700000,Santo André,SP,Sudeste,3547809,OK
+```
+
+---
+
+## Exemplo de resposta da API
+
+```json
+{
+  "score": 8.75,
+  "feedback": "Bom trabalho!"
+}
+```
+
+---
+
 ## Cache IBGE
 
-Ficheiro: `application/cache/ibge.json`. Apague-o para forçar novo download da API.
+Arquivo: `application/cache/ibge.json`. Apague-o para forçar novo download da API.
