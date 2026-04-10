@@ -2,12 +2,17 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Fluxo: login Supabase → CSV → IBGE → match → resultado.csv → stats → API.
+ * Pipeline de enriquecimento com `Municipio_matcher` e `Ibge_stats` (inclui status AMBIGUO no resumo).
  *
- * CLI: php index.php ibge_process run
+ * CLI: `php index.php ibge_process run`
  */
 class Ibge_process extends CI_Controller {
 
+	/**
+	 * Carrega configuração `ibge` e bibliotecas do pipeline (cliente IBGE, Supabase, matcher, stats).
+	 *
+	 * @return void
+	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -19,7 +24,9 @@ class Ibge_process extends CI_Controller {
 	}
 
 	/**
-	 * Página inicial com instruções.
+	 * Página HTML com instruções de uso do processamento via linha de comando.
+	 *
+	 * @return void
 	 */
 	public function index()
 	{
@@ -36,7 +43,12 @@ class Ibge_process extends CI_Controller {
 	}
 
 	/**
-	 * Executa o pipeline completo (CLI ou HTTP).
+	 * Executa o pipeline completo: login Supabase, leitura do CSV, carga IBGE, matching,
+	 * gravação de `resultado.csv`, cálculo de estatísticas e envio à API.
+	 *
+	 * Adequado para CLI (`php index.php ibge_process run`); em HTTP imprime a mesma saída em texto.
+	 *
+	 * @return void
 	 */
 	public function run()
 	{
@@ -136,7 +148,9 @@ class Ibge_process extends CI_Controller {
 	}
 
 	/**
-	 * @param string $path
+	 * Lê CSV com colunas obrigatórias `municipio` e `populacao` e devolve linhas associativas.
+	 *
+	 * @param string $path Caminho absoluto do arquivo CSV de entrada.
 	 * @return array<int, array<string, mixed>>
 	 */
 	protected function _read_csv($path)
@@ -183,8 +197,11 @@ class Ibge_process extends CI_Controller {
 	}
 
 	/**
-	 * @param string $path
-	 * @param array<int, array<string, mixed>> $linhas
+	 * Grava o CSV de saída com colunas fixas de enriquecimento e status.
+	 *
+	 * @param string $path Caminho absoluto do arquivo de saída.
+	 * @param array<int, array<string, mixed>> $linhas Linhas já enriquecidas pelo matcher.
+	 * @return void
 	 */
 	protected function _write_result_csv($path, array $linhas)
 	{
@@ -217,14 +234,23 @@ class Ibge_process extends CI_Controller {
 		fclose($h);
 	}
 
+	/**
+	 * Envia mensagem para stdout (CLI) ou HTML com quebra de linha.
+	 *
+	 * @param string $msg Texto a exibir.
+	 * @return void
+	 */
 	protected function _out($msg)
 	{
 		echo $msg . (is_cli() ? PHP_EOL : "<br>\n");
 	}
 
 	/**
-	 * @param string $msg
-	 * @param int $code
+	 * Encerra o script com código de saída, opcionalmente após mensagem em stderr ou HTML.
+	 *
+	 * @param string $msg Mensagem de erro (pode ser string vazia se só for preciso sair com código).
+	 * @param int $code Código de saída do processo (padrão 1).
+	 * @return void
 	 */
 	protected function _fail($msg, $code = 1)
 	{
